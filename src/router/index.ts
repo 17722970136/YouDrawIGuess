@@ -8,7 +8,13 @@ const routes: Array<RouteConfig> = [
   {
     path: '/',
     name: 'Home',
-    component: Home
+    component: Home,
+    meta: [
+      {
+        name: 'Home',
+        path: '/Home'
+      }
+    ]
   },
   {
     path: '/about',
@@ -23,7 +29,8 @@ const routes: Array<RouteConfig> = [
 const router = new VueRouter({
   mode: 'history',
   base: process.env.BASE_URL,
-  routes
+  routes,
+  linkActiveClass: 'active'
 })
 
 export default router

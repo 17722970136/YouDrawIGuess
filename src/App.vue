@@ -4,11 +4,31 @@
       <router-link to="/">Home</router-link> |
       <router-link to="/about">About</router-link>
     </div>
+    <transition>
     <router-view/>
+    </transition>
   </div>
 </template>
 
 <style>
+.v-enter {
+  opacity: 0;
+  transition: translateX(200%);
+
+}
+.v-enter-to {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.v-leave-to {
+  transform: translateX(-100%);
+  position: absolute;
+}
+.v-enter-active,
+.v-leave-active {
+  transition: all ease-out 0.5s;
+}
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
