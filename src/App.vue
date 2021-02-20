@@ -1,8 +1,8 @@
 <template>
   <div id="app">
     <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
+      <div><router-link to="/" :class="routName=='canvas'? 'linkActiveClass' : ''">你画我猜</router-link> |</div>
+      <div><router-link to="/drawingBed" :class="routName=='drawingBed'? 'linkActiveClass' : ''">图床</router-link></div>
     </div>
     <transition>
     <router-view/>
@@ -10,17 +10,27 @@
   </div>
 </template>
 
+<script lang="ts">
+import { Vue, Component } from 'vue-property-decorator'
+  @Component
+export default class App extends Vue {
+  get routName () {
+    return this.$route.path.split('/')[1]
+  }
+}
+</script>
+
 <style>
+* {
+  padding: 0;
+  margin: 0;
+}
 .v-enter {
   opacity: 0;
   transition: translateX(200%);
+  transform: scale(0);
+}
 
-}
-.v-enter-to {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-}
 .v-leave-to {
   transform: translateX(-100%);
   position: absolute;
@@ -36,17 +46,26 @@
   text-align: center;
   color: #2c3e50;
 }
-
 #nav {
-  padding: 30px;
+  z-index: 3;
+  width: 100%;
+  display: flex;
+  height: 50px;
+  justify-content: center;
+  align-content: center;
+  background-image: linear-gradient(to right, #e0e0de,gray,#cdd6d5,gray,#d4d1da,gray,#e0e0de);
 }
-
+#nav div {
+    line-height: 50px;
+    color: white;
+}
 #nav a {
   font-weight: bold;
-  color: #2c3e50;
+  color: rgb(253, 252, 252);
+  margin: 0 20px;
 }
 
-#nav a.router-link-exact-active {
-  color: #42b983;
+#nav a.linkActiveClass {
+  color: #8bebbf;
 }
 </style>
