@@ -40,10 +40,14 @@
         @click="updateStroke(item.color)"
       ></div>
     </div>
+    <div class="colorPicker">
+    <el-color-picker v-model="colorPicker"></el-color-picker>
+    <span class="demonstration">自定义颜色</span>
+  </div>
   </div>
 </template>
 <script lang="ts">
-import { Vue, Component } from 'vue-property-decorator'
+import { Vue, Component, Watch } from 'vue-property-decorator'
 import { Mutation, Getter } from 'vuex-class'
 const toolsArr = [
   {
@@ -227,6 +231,12 @@ const toolsArr = [
 @Component
 export default class PainBrush extends Vue {
   private toolsArr = toolsArr;
+  private colorPicker: any = 'gray';
+
+  @Watch('colorPicker')
+  handlerColorPicker (val: any) {
+    this.updateStroke(val)
+  }
 
   @Mutation('updateStroke')
   private updateStroke!: any;
@@ -373,6 +383,14 @@ export default class PainBrush extends Vue {
         transform: scale(1.2);
       }
     }
+  }
+  .colorPicker {
+    width: 80%;
+    display: flex;
+    justify-content: flex-start;
+    align-content: center;
+    flex-direction: column;
+    margin-top: 15px;
   }
 }
 </style>

@@ -15,7 +15,8 @@ export default new Vuex.Store({
     strokeStyle: 'red',
     brush: '记号笔',
     Image: null,
-    WSURL: 'wss://192.168.124.7:8082'
+    WSURL: 'wss://192.168.124.7:8082',
+    UPLOAD_URL: 'http://127.0.0.1:996'
   },
   getters: {
     lineWidth: state => state.lineWidth,
@@ -30,7 +31,8 @@ export default new Vuex.Store({
     strokeStyle: state => state.strokeStyle,
     brush: state => state.brush,
     Image: state => state.Image,
-    WSURL: state => state.WSURL
+    WSURL: state => state.WSURL,
+    UPLOAD_URL: state => state.UPLOAD_URL
 
   },
   mutations: {
