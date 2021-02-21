@@ -2,7 +2,11 @@
   <div class="towdShape">
     <div class="title">2D 形状</div>
     <div class="tools">
-      <div class="block">
+      <div
+        class="block"
+        @click="updateBrush('圆')"
+        :class="brush == '圆' ? 'active' : ''"
+      >
         <svg
           t="1613826572414"
           class="icon"
@@ -35,8 +39,12 @@
           ></path>
         </svg>
       </div>
-      <div class="block">
-          <svg
+      <div
+        class="block"
+        @click="updateBrush('线')"
+        :class="brush == '线' ? 'active' : ''"
+      >
+        <svg
           t="1613826261164"
           class="icon"
           viewBox="0 0 1024 1024"
@@ -59,8 +67,48 @@
         </svg>
       </div>
     </div>
+
+    <div class="uploadImage">
+      <el-upload
+        class="upload-demo"
+        action="http://127.0.0.1/"
+        :file-list="fileList"
+        list-type="picture"
+        :auto-upload="false"
+        :on-change="onChangeImage"
+      >
+        <el-button size="small" type="primary">点击上传</el-button>
+        <div slot="tip" class="el-upload__tip">
+          只能上传jpg/png文件，且不超过500kb
+        </div>
+      </el-upload>
+    </div>
   </div>
 </template>
+<script lang="ts">
+import { Vue, Component } from 'vue-property-decorator'
+import { Mutation, Getter } from 'vuex-class'
+@Component
+export default class TowDShape extends Vue {
+  private fileList = []
+
+  @Mutation('updateBrush')
+  private updateBrush!: string;
+
+  @Getter('brush')
+  private brush!: string;
+
+  $store: any;
+
+  onChangeImage (file: any) {
+    const image = new Image()
+    image.src = file.url
+    image.onload = () => {
+      this.$store.state.Image = image
+    }
+  }
+}
+</script>
 <style lang="scss" scoped>
 .towdShape {
   margin: 0;
@@ -88,9 +136,20 @@
       border: 1px solid rgb(58, 131, 241);
       margin: 10px;
       &:hover {
-          cursor: pointer;
+        cursor: pointer;
+      }
+      &.active {
+        background-image: linear-gradient(to left bottom, #a9bbe4, #03d4f0);
       }
     }
+  }
+  .uploadImage {
+    border-top: 1px solid rgb(228, 228, 228);
+    margin: 20px 0;
+    padding: 20px 0;
+    transform: scale(0.8);
+    display: flex;
+    justify-content: flex-start;
   }
 }
 </style>

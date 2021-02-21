@@ -128,11 +128,16 @@
           <div class="tools-right">
             <div class="reduceBtn" @click="reduceSlider">－</div>
             <div class="block">
-              <el-slider v-model="sliderValue" :max="500" @change="sliderChange"></el-slider>
+              <el-slider
+                v-model="sliderValue"
+                :max="500"
+                @change="sliderChange"
+                @input="sliderInput"
+              ></el-slider>
             </div>
             <div class="addBtn" @click="addSlider">＋</div>
             <div class="percentage">{{ sliderValue }}%</div>
-            <div class="last" @click="last">
+            <div class="last" @click="last" title="退一步">
               <svg
                 t="1613806497371"
                 class="icon"
@@ -155,7 +160,7 @@
                 ></path>
               </svg>
             </div>
-            <div class="next" @click="next">
+            <div class="next" @click="next" title="重写">
               <svg
                 t="1613806511772"
                 class="icon"
@@ -178,18 +183,77 @@
                 ></path>
               </svg>
             </div>
+            <div class="clearCanvas" @click="clearCanvas" title="清空画布">
+              <svg
+                t="1613884559960"
+                class="icon"
+                viewBox="0 0 1024 1024"
+                version="1.1"
+                xmlns="http://www.w3.org/2000/svg"
+                p-id="2044"
+                width="48"
+                height="48"
+              >
+                <path
+                  d="M151.963012 337.651783v30.025437h22.107732l7.917705 60.050874c0 11.025197 3.281552 21.170877 8.473675 30.025438h673.634633c5.191099-8.85456 8.475723-19.00024 8.475723-30.025438l7.975043-60.050874h22.050394v-30.025437H151.963012zM269.365799 790.671893c5.512599 31.433279 25.626826 57.294575 57.294575 57.294575h401.238133c31.667749 0 50.845121-25.392356 57.354985-57.294575l51.869006-302.892924h-619.686115l51.929416 302.892924z m146.373622-228.414482l21.231286-21.231286 90.310781 90.253444 90.310782-90.253444 21.228214 21.231286-90.310781 90.250372 90.604636 90.604636-21.231286 21.228215-90.601565-90.604636-90.604636 90.604636-21.228214-21.228215 90.602588-90.604636-90.311805-90.250372z"
+                  fill="#98C4D8"
+                  p-id="2045"
+                ></path>
+                <path
+                  d="M121.937575 307.626346v30.025437h22.107732l7.917705 60.050874c0 11.025197 3.281552 21.170877 8.473675 30.025437h673.634633c5.191099-8.85456 8.475723-19.00024 8.475723-30.025437l7.975043-60.050874h22.050394v-30.025437H121.937575zM239.340362 760.646456c5.512599 31.433279 25.626826 57.294575 57.294575 57.294575H697.87307c31.667749 0 50.845121-25.392356 57.354984-57.294575l51.869007-302.892924h-619.686115l51.929416 302.892924z m146.373622-228.414482l21.231286-21.231286 90.310781 90.253444 90.310782-90.253444 21.228214 21.231286-90.310781 90.250372 90.604636 90.604636-21.231286 21.228215-90.601565-90.604637-90.604636 90.604637-21.228214-21.228215 90.602588-90.604636-90.311805-90.250372z"
+                  fill="#EFD9A0"
+                  p-id="2046"
+                ></path>
+                <path
+                  d="M306.141858 413.762503a27.013167 57.402083 55.515 1 0 94.63014-65.001024 27.013167 57.402083 55.515 1 0-94.63014 65.001024Z"
+                  fill="#FEFEFE"
+                  p-id="2047"
+                ></path>
+                <path
+                  d="M248.134573 508.228533a18.008095 31.51519 55.515 1 0 51.954332-35.687201 18.008095 31.51519 55.515 1 0-51.954332 35.687201Z"
+                  fill="#FEFEFE"
+                  p-id="2048"
+                ></path>
+              </svg>
+            </div>
+
+            <div class="select" style="transform: scale(0.8)">
+              <el-select v-model="selectValue" @change="selectChange">
+                <el-option
+                  v-for="item in options"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                >
+                </el-option>
+              </el-select>
+            </div>
           </div>
         </div>
 
         <div class="content" ref="canvasContent">
           <canvas
+            v-show="isShowCnavas"
+            :style="isOpacity ? 'background-color:rgba(0,0,0,0);' : null"
             ref="canvas"
             class="canvas"
-            :width="750 * (sliderValue / 100)"
-            :height="400 * (sliderValue / 100)"
+            :width="canvasWpx * (sliderValue / 100)"
+            :height="canvasHpx * (sliderValue / 100)"
           >
             你的浏览器不支持canvas，请升级浏览器或者使用Chrome/fixfor
           </canvas>
+          <div
+            class="clearRect"
+            ref="clearRectDiv"
+            style="
+              display: none;
+              position: absolute;
+              border-radius: 50%;
+              border: 1px solid gray;
+              box-sizing: border-box;
+              transform: translate(-50%, -50%);
+            "
+          ></div>
         </div>
       </div>
       <div class="box-right">
@@ -202,23 +266,175 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Ref } from 'vue-property-decorator'
+import { Component, Vue, Ref, Watch } from 'vue-property-decorator'
+import { Getter, Mutation } from 'vuex-class'
 import '../style/components/canvas.scss'
 @Component
 export default class HelloWorld extends Vue {
+  private options = [
+    {
+      value: '0',
+      label: '连接房间'
+    },
+    {
+      value: '1',
+      label: '断开房间'
+    }
+  ];
+
+  private selectValue = '是否进入房间';
+
+  private clearRectDom: any;
+  private timer: any;
+  private ws: any;
+  private isWsOpen = false;
+  private reStartWsTimer: any;
+  private isRestart = true;
+
   @Ref() private canvas!: any;
   @Ref() private canvasContent!: any;
-  private sliderValue = 100;
+  @Ref() private clearRectDiv!: any;
+
+  @Watch('canvasWpx')
+  handlerCanvasWpx (val: number) {
+    this.updataCanvasPx({
+      Wpx: val,
+      Hpx: this.canvas.offsetHeight
+    })
+  }
+
+  @Watch('canvasHpx')
+  handlerCanvasHpx (val: number) {
+    this.updataCanvasPx({
+      Wpx: this.canvas.offsetWidth,
+      Hpx: val
+    })
+  }
+
+  @Watch('Image')
+  handlerImage (val: any) {
+    if (!val || val == null) return false
+    this.ctx.clearRect(0, 0, this.canvas.offsetWidth, this.canvas.offsetHeight)
+    this.ctx.drawImage(
+      val,
+      0,
+      0,
+      this.canvas.offsetWidth,
+      this.canvas.offsetHeight
+    )
+  }
+
+  @Getter('Image')
+  private Image!: any;
+
+  @Getter('lineWidth')
+  private lineWidth!: number;
+
+  @Getter('noOpacityValue')
+  private noOpacityValue!: number;
+
+  @Getter('canvasWpx')
+  private canvasWpx!: number;
+
+  @Getter('canvasHpx')
+  private canvasHpx!: number;
+
+  @Getter('isShowCnavas')
+  private isShowCnavas!: number;
+
+  @Getter('isOpacity')
+  private isOpacity!: number;
+
+  @Getter('strokeStyle')
+  private strokeStyle!: any;
+
+  @Getter('brush')
+  private brush!: string;
+
+  $store: any;
+  get sliderValue () {
+    return this.$store.state.canvasSizeSlider
+  }
+
+  set sliderValue (val: any) {
+    this.$store.state.canvasSizeSlider = val
+    this.updataCanvasPx({
+      Wpx: this.canvas.offsetWidth,
+      Hpx: this.canvas.offsetHeight
+    })
+  }
+
+  @Mutation('updataCanvasPx')
+  private updataCanvasPx!: any;
+
   private ctx: any;
   private x = 0;
   private y = 0;
-  private strokeStyle: any = 'blue';
-  private lineWidth = 1;
-  private isDash = false;
   private imageDataArr: any = [];
   private step = 0;
+  private userId = new Date().getTime();
+
   mounted () {
     this.init()
+  }
+
+  destroyed () {
+    if (!this.ws) return false
+    this.ws.close()
+  }
+
+  selectChange (val: any) {
+    // eslint-disable-next-line eqeqeq
+    if (val == 0) {
+      this.initWebsocket()
+      this.isRestart = true
+      // eslint-disable-next-line eqeqeq
+    } else if (val == 1) {
+      if (!this.ws) return false
+      this.ws.close()
+      this.isRestart = false
+    }
+  }
+
+  initWebsocket () {
+    this.ws = new WebSocket('wss://192.168.124.7:8082')
+    this.ws.onerror = () => {
+      this.$message.error('错了哦，ws连接失败')
+      this.isWsOpen = false
+    }
+    this.ws.onmessage = (message: any) => {
+      const Img = new Image()
+      if (this.canvas.width !== JSON.parse(message.data).width || this.canvas.height !== JSON.parse(message.data).height) {
+        this.canvas.width = JSON.parse(message.data).width
+        this.canvas.height = JSON.parse(message.data).height
+      }
+      this.$store.state.canvasSizeSlider = JSON.parse(message.data).sliderSize
+      Img.src = JSON.parse(message.data).imageData
+      Img.onload = () => {
+        this.ctx.clearRect(0, 0, this.canvas.offsetWidth, this.canvas.offsetHeight)
+        this.ctx.drawImage(Img, 0, 0, this.canvas.offsetWidth, this.canvas.offsetHeight)
+      }
+    }
+    this.ws.onopen = () => {
+      clearTimeout(this.reStartWsTimer)
+      this.$message({
+        message: 'ws连接成功',
+        type: 'success'
+      })
+      this.isWsOpen = true
+    }
+    this.ws.onclose = () => {
+      this.$message({
+        message: '警告哦，webSocket断开连接',
+        type: 'warning'
+      })
+      this.isWsOpen = false
+      clearTimeout(this.reStartWsTimer)
+      if (!this.isRestart) return false
+      this.reStartWsTimer = setInterval(() => {
+        this.initWebsocket()
+      }, 2000)
+    }
   }
 
   init () {
@@ -233,16 +449,46 @@ export default class HelloWorld extends Vue {
       this.ctx.lineWidth = this.lineWidth
       this.ctx.strokeStyle = this.strokeStyle
       this.ctx.lineWidth = this.lineWidth
-      if (!this.isDash) {
-        this.ctx.setLineDash([10, 5]) // 虚线
+      this.ctx.globalAlpha = this.noOpacityValue / 100
+      // eslint-disable-next-line eqeqeq
+      if (this.brush == '断线笔') {
+        this.ctx.setLineDash([this.lineWidth, this.lineWidth + 2]) // 虚线
+        // eslint-disable-next-line eqeqeq
+      } else if (this.brush == '记号笔') {
+        this.ctx.setLineDash([])
       }
       this.canvas.onmousemove = (e: any) => {
         this.x =
           e.clientX - this.canvas.offsetLeft + this.canvasContent.scrollLeft
         this.y =
           e.clientY - this.canvas.offsetTop + this.canvasContent.scrollTop
-        this.ctx.lineTo(this.x, this.y)
-        this.ctx.stroke()
+        switch (this.brush) {
+          case '橡皮擦':
+            this.clearRectDiv.style.display = 'block'
+            this.clearRectDiv.style.left =
+              this.x + this.canvas.offsetLeft + 'px'
+            this.clearRectDiv.style.top = this.y + this.canvas.offsetTop + 'px'
+            this.clearRectDiv.style.width = this.lineWidth + 'px'
+            this.clearRectDiv.style.height = this.lineWidth + 'px'
+            this.clearRect()
+            break
+          case '记号笔':
+            this.stroke()
+            break
+          case '断线笔':
+            this.stroke()
+            break
+          case '圆':
+            this.strokeArc()
+            break
+          case '实心圆':
+            this.fillArc()
+            break
+          case '线':
+            this.storkeLine()
+            break
+        }
+        this.send()
       }
       window.onmouseup = () => {
         this.canvas.onmousemove = null
@@ -257,13 +503,106 @@ export default class HelloWorld extends Vue {
           )
         )
         this.step = this.imageDataArr.length - 1
+        this.clearRectDiv.style.display = 'none'
       }
     }
+  }
+
+  // send ws
+  send () {
+    if (this.isWsOpen) {
+      this.canvas.toBlob((blob: any) => {
+        this.ws.send(
+          JSON.stringify({
+            userId: this.userId,
+            width: this.canvas.width,
+            height: this.canvas.height,
+            sliderSize: this.sliderValue,
+            imageData: this.canvas.toDataURL(blob.type)
+          })
+        )
+      })
+    }
+  }
+
+  // 画线
+  stroke () {
+    this.ctx.globalAlpha = this.noOpacityValue / 100
+    this.ctx.lineTo(this.x, this.y)
+    this.ctx.stroke()
+  }
+
+  // 清空画布
+  clearCanvas () {
+    this.ctx.clearRect(0, 0, this.canvas.offsetWidth, this.canvas.offsetHeight)
+    this.send()
+  }
+
+  // 橡皮擦
+  clearRect () {
+    this.ctx.save()
+    this.ctx.beginPath()
+    this.ctx.arc(this.x, this.y, this.lineWidth / 2, 0, Math.PI * 2)
+    this.ctx.clip()
+    this.ctx.clearRect(
+      this.x - this.lineWidth / 2,
+      this.y - this.lineWidth / 2,
+      this.lineWidth + 10,
+      this.lineWidth + 10
+    )
+    this.ctx.restore()
+    this.send()
+  }
+
+  // 画圆
+  strokeArc () {
+    this.ctx.beginPath()
+    this.ctx.lineWidth = 1
+    this.ctx.arc(this.x, this.y, this.lineWidth / 2, 0, Math.PI * 2)
+    this.ctx.stroke()
+    this.ctx.closePath()
+  }
+
+  // 画实心圆
+  fillArc () {
+    this.ctx.beginPath()
+    this.ctx.lineWidth = 1
+    this.ctx.arc(this.x, this.y, this.lineWidth / 2, 0, Math.PI * 2)
+    this.ctx.fill()
+    this.ctx.closePath()
+  }
+
+  // 画直线
+  storkeLine () {
+    this.ctx.globalAlpha = this.noOpacityValue / 100
+    this.ctx.lineTo(this.x, this.y)
+    this.ctx.stroke()
+    this.ctx.closePath()
   }
 
   sliderChange () {
     if (this.imageDataArr.length <= 0) return
     this.ctx.putImageData(this.imageDataArr[this.step], 0, 0)
+  }
+
+  sliderInput () {
+    this.send()
+    this.onWatchWH()
+  }
+
+  // 监听高度宽度
+  onWatchWH () {
+    if (this.canvas.offsetWidth > this.canvasContent.offsetWidth) {
+      this.canvasContent.classList.add('updataW')
+    } else {
+      this.canvasContent.classList.remove('updataW')
+    }
+
+    if (this.canvas.offsetHeight > this.canvasContent.offsetHeight) {
+      this.canvasContent.classList.add('updataH')
+    } else {
+      this.canvasContent.classList.remove('updataH')
+    }
   }
 
   last () {
@@ -279,6 +618,7 @@ export default class HelloWorld extends Vue {
       return false
     }
     this.ctx.putImageData(this.imageDataArr[this.step], 0, 0)
+    this.send()
   }
 
   next () {
@@ -288,14 +628,25 @@ export default class HelloWorld extends Vue {
       return false
     }
     this.ctx.putImageData(this.imageDataArr[this.step], 0, 0)
+    this.send()
   }
 
   reduceSlider () {
     this.sliderValue -= 10
+    this.timer = setTimeout(() => {
+      this.sliderChange()
+      this.onWatchWH()
+      clearTimeout(this.timer)
+    })
   }
 
   addSlider () {
     this.sliderValue += 10
+    this.timer = setTimeout(() => {
+      this.sliderChange()
+      this.onWatchWH()
+      clearTimeout(this.timer)
+    })
   }
 }
 </script>

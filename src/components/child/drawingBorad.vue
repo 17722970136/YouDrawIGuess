@@ -4,7 +4,7 @@
     <div class="switchGroup">
       <div class="isShow switch">
         <div class="hint">显示画布</div>
-        <el-switch v-model="isShow" active-text="开" inactive-text="关">
+        <el-switch v-model="isShowCanvas" active-text="开" inactive-text="关">
         </el-switch>
       </div>
       <div class="isOpacity switch">
@@ -18,22 +18,73 @@
       <div class="SizeInfo">
         <div class="width size">
           <div class="note">宽度</div>
-          <div class="input"><input type="text" /><div>像素</div></div>
+          <div class="input"><input type="text" v-model="CanvasWpx" /><div>像素</div></div>
         </div>
         <div class="height size">
           <div class="note">高度</div>
-          <div class="input"><input type="text" /><div>像素</div></div>
+          <div class="input"><input type="text" v-model="CanvasHpx" /><div>像素</div></div>
         </div>
+      </div>
+    </div>
+
+    <div class="drawBoradSize">
+      <div class="title">当前画布像素</div>
+      <div class="canvasPx">
+        {{ currentWpx }}<span>×</span>{{ currentHpx }}
       </div>
     </div>
   </div>
 </template>
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
+import { Getter } from 'vuex-class'
 @Component
 export default class DrawBorad extends Vue {
-  private isShow = true;
-  private isOpacity = false;
+  @Getter('currentWpx')
+  private currentWpx!: number;
+
+  @Getter('currentHpx')
+  private currentHpx!: number;
+
+  $store: any;
+
+  get isShowCanvas () {
+    return this.$store.state.isShowCnavas
+  }
+
+  set isShowCanvas (val) {
+    this.$store.state.isShowCnavas = val
+  }
+
+  get isOpacity () {
+    return this.$store.state.isOpacity
+  }
+
+  set isOpacity (val) {
+    this.$store.state.isOpacity = val
+  }
+
+  get CanvasWpx () {
+    return this.$store.state.canvasWpx
+  }
+
+  set CanvasWpx (val) {
+    val = parseInt(val)
+    if (isNaN(val)) val = 0
+    this.$store.state.canvasWpx = val
+    this.$store.state.canvasSizeSlider = 100
+  }
+
+  get CanvasHpx () {
+    return this.$store.state.canvasHpx
+  }
+
+  set CanvasHpx (val) {
+    val = parseInt(val)
+    if (isNaN(val)) val = 0
+    this.$store.state.canvasHpx = val
+    this.$store.state.canvasSizeSlider = 100
+  }
 }
 </script>
 <style lang="scss" scoped>
@@ -109,7 +160,7 @@ export default class DrawBorad extends Vue {
                 border: 0;
                 outline: none;
                 text-align: right;
-                width: 20px;
+                width: 40%;
                 color: rgb(24, 23, 23);
                 font-size: 0.8vw;
             }
@@ -118,6 +169,17 @@ export default class DrawBorad extends Vue {
           margin-bottom: 10px;
           font-size: 0.9vw;
         }
+      }
+    }
+    .canvasPx {
+      display: flex;
+      width: 100%;
+      justify-content: flex-start;
+      color: darkgray;
+      font-size: 1vw;
+      span {
+        transform: scale(1.5);
+        margin: 0 10px;
       }
     }
   }

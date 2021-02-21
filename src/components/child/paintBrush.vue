@@ -3,8 +3,52 @@
     <div class="tools">
       <div class="title">文具盒</div>
       <div class="brush-info">
-        <div class="brush" title="记号笔">
-          <svg
+        <div
+          v-for="(item, index) in toolsArr"
+          :key="index"
+          :class="brush != item.note ? 'brush' : 'brush active'"
+          @click="updateBrush(item.note)"
+          :title="item.note"
+          v-html="item.svg"
+          />
+      </div>
+    </div>
+    <div class="fontWidth">
+      <div class="note">
+        <div class="text">粗细</div>
+        <div class="value"><input type="text" v-model="lineWidth" />像素</div>
+      </div>
+      <div class="block">
+        <el-slider v-model="lineWidth" :max="100"></el-slider>
+      </div>
+    </div>
+    <div class="fontOpacity">
+      <div class="note">
+        <div class="text">不透明度</div>
+        <div class="value"><input type="text" v-model="noOpacityValue" />%</div>
+      </div>
+      <div class="block">
+        <el-slider v-model="noOpacityValue" :max="100"></el-slider>
+      </div>
+    </div>
+    <div class="colorTable">
+      <div
+        :class="strokeStyle == item.color ? 'colorBlock active' : 'colorBlock'"
+        v-for="(item, index) in this.$route.meta"
+        :key="index"
+        :style="'background-color:' + item.color + ';'"
+        @click="updateStroke(item.color)"
+      ></div>
+    </div>
+  </div>
+</template>
+<script lang="ts">
+import { Vue, Component } from 'vue-property-decorator'
+import { Mutation, Getter } from 'vuex-class'
+const toolsArr = [
+  {
+    note: '记号笔',
+    svg: `<svg
             t="1613812544134"
             class="icon"
             viewBox="0 0 1024 1024"
@@ -94,10 +138,11 @@
               fill=""
               p-id="10746"
             ></path>
-          </svg>
-        </div>
-        <div class="brush" title="断线笔">
-          <svg
+          </svg>`
+  },
+  {
+    note: '断线笔',
+    svg: `<svg
             t="1613815406775"
             class="icon"
             viewBox="0 0 1318 1024"
@@ -172,44 +217,49 @@
               fill="#E3BC3D"
               p-id="16736"
             ></path>
-          </svg>
-        </div>
-      </div>
-    </div>
-    <div class="fontWidth">
-      <div class="note">
-        <div class="text">粗细</div>
-        <div class="value"><input type="text" v-model="pxValue" />像素</div>
-      </div>
-      <div class="block">
-        <el-slider v-model="pxValue" :max="100"></el-slider>
-      </div>
-    </div>
-    <div class="fontOpacity">
-      <div class="note">
-        <div class="text">不透明度</div>
-        <div class="value"><input type="text" v-model="opacityValue" />%</div>
-      </div>
-      <div class="block">
-        <el-slider v-model="opacityValue" :max="100"></el-slider>
-      </div>
-    </div>
-    <div class="colorTable">
-      <div
-        class="colorBlock"
-        v-for="(item, index) in this.$route.meta"
-        :key="index"
-        :style="'background-color:' + item.color + ';'"
-      ></div>
-    </div>
-  </div>
-</template>
-<script lang="ts">
-import { Vue, Component } from 'vue-property-decorator'
+          </svg>`
+  },
+  {
+    note: '橡皮擦',
+    svg: '<svg t="1613876478492" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1816" width="48" height="48"><path d="M562.85 92.74c-11.16 0-21.97 4.32-30.61 12.6L100.11 537.47c-8.28 8.28-12.6 19.45-12.6 30.61 0 198.78 161.33 360.11 360.11 360.11 11.16 0 21.97-4.32 30.61-12.6l432.13-432.13c8.28-8.28 12.6-19.45 12.6-30.61 0-198.78-161.33-360.11-360.11-360.11z" fill="#949BA6" p-id="1817"></path><path d="M817.45 198.25l-10.44 10.44c7.92 7.92 12.6 18.73 12.6 30.61 0 7.56-2.16 14.76-5.76 20.89 41.41 53.3 65.9 120.28 65.9 192.66L447.62 884.98c-158.45 0-290.25-117.04-313.3-269.36-18.37-4.68-32.41-21.61-32.41-41.77h-14.4C90.75 770.11 250.64 928.2 447.62 928.2c11.16 0 21.97-4.32 30.61-12.6l432.13-432.13c8.28-8.28 12.6-19.45 12.6-30.61 0-99.4-40.33-189.43-105.51-254.61z" fill="#717582" p-id="1818"></path><path d="M172.165 465.65l287.987-287.988 378.13 378.128-287.989 287.988z" fill="#FFC600" p-id="1819"></path><path d="M519.583 812.774l287.988-287.988 30.554 30.554-287.988 287.988z" fill="#FFA100" p-id="1820"></path><path d="M253.52 479.86c-3.6 0-7.2-1.44-10.08-4.32-5.76-5.76-5.76-14.76 0-20.53l206.7-206.7c5.76-5.76 14.76-5.76 20.53 0 5.76 5.76 5.76 14.76 0 20.53l-206.7 206.7c-2.89 2.88-6.49 4.32-10.45 4.32z" fill="#FFEEB2" p-id="1821"></path><path d="M145.13 588.25c-3.6 0-7.2-1.44-10.08-4.32-5.76-5.76-5.76-14.76 0-20.53l27.01-27.01c5.76-5.76 14.76-5.76 20.53 0 5.76 5.76 5.76 14.76 0 20.53l-27.01 27.01c-2.89 3.24-6.85 4.32-10.45 4.32zM541.61 191.77c-3.6 0-7.2-1.44-10.08-4.32-5.76-5.76-5.76-14.76 0-20.53l27.01-27.01c2.88-2.88 6.48-4.32 10.44-4.32 19.81 0.36 39.97 2.88 59.78 6.84 7.92 1.8 12.6 9.36 11.16 16.93-1.8 7.92-9.36 12.6-16.93 11.16-16.2-3.24-32.05-5.4-48.25-6.12l-22.69 22.69c-2.88 3.24-6.48 4.68-10.44 4.68zM776.76 253.35c-3.6 0-7.2-1.44-10.08-4.32-12.96-12.96-27.73-25.21-43.57-35.65-6.48-4.32-8.28-13.32-3.96-20.17 4.32-6.48 13.32-8.28 20.17-3.96a315.58 315.58 0 0 1 47.89 39.25c5.76 5.76 5.76 14.76 0 20.53-3.25 2.88-6.85 4.32-10.45 4.32z" fill="#DFE1E4" p-id="1822"></path><path d="M680.25 174.12m-14.4 0a14.4 14.4 0 1 0 28.8 0 14.4 14.4 0 1 0-28.8 0Z" fill="#DFE1E4" p-id="1823"></path><path d="M562.85 78.33c-15.48 0-29.89 6.12-40.69 16.93L90.03 527.39c-10.8 10.8-16.93 25.21-16.93 40.69 0 206.34 168.17 374.51 374.51 374.51 15.48 0 29.89-6.12 40.69-16.93l432.13-432.13c10.8-10.8 16.93-25.21 16.93-40.69 0.01-206.34-168.16-374.51-374.51-374.51z m-94.71 827.18c-5.4 5.4-12.6 8.28-20.53 8.28-190.5 0-345.71-155.21-345.71-345.71 0-7.56 2.88-14.76 8.28-20.53l61.94-61.94L529.71 843.2l-61.57 62.31z m82.11-82.47L192.66 465.45l267.56-267.56 357.59 357.59-267.56 267.56z m350.03-349.67l-61.94 61.94-357.59-357.59 61.94-61.94c5.4-5.4 12.6-8.28 20.53-8.28 190.5 0 345.71 155.21 345.71 345.71-0.37 7.2-3.25 14.4-8.65 20.16z" fill="#090418" p-id="1824"></path><path d="M345.35 455.37c-5.76-5.76-14.76-5.76-20.53 0s-5.76 14.76 0 20.53l214.99 214.99c2.88 2.88 6.48 4.32 10.08 4.32 3.6 0 7.2-1.44 10.08-4.32 5.76-5.76 5.76-14.76 0-20.53L345.35 455.37zM429.61 452.49c-5.76-5.76-14.76-5.76-20.53 0-5.76 5.76-5.76 14.76 0 20.53l133.6 133.6c2.88 2.88 6.48 4.32 10.08 4.32 3.6 0 7.2-1.44 10.08-4.32 5.76-5.76 5.76-14.76 0-20.53l-133.23-133.6zM450.14 330.05c-5.76 5.76-5.76 14.76 0 20.53l92.91 92.91c2.88 2.88 6.48 4.32 10.08 4.32 3.6 0 7.2-1.44 10.08-4.32 5.76-5.76 5.76-14.76 0-20.53l-92.91-92.91c-5.4-5.4-14.76-5.4-20.16 0zM665.12 565.56c2.88 2.88 6.48 4.32 10.08 4.32 3.6 0 7.2-1.44 10.08-4.32 5.76-5.76 5.76-14.76 0-20.53l-40.69-40.69c-5.76-5.76-14.76-5.76-20.53 0-5.76 5.76-5.76 14.76 0 20.53l41.06 40.69z" fill="#090418" p-id="1825"></path><path d="M593.82 474.09m-14.4 0a14.4 14.4 0 1 0 28.8 0 14.4 14.4 0 1 0-28.8 0Z" fill="#090418" p-id="1826"></path><path d="M420.61 814.76m-14.4 0a14.4 14.4 0 1 0 28.8 0 14.4 14.4 0 1 0-28.8 0Z" fill="#090418" p-id="1827"></path><path d="M87.51 779.47m-14.4 0a14.4 14.4 0 1 0 28.8 0 14.4 14.4 0 1 0-28.8 0Z" fill="#090418" p-id="1828"></path><path d="M120.28 826.64m-14.4 0a14.4 14.4 0 1 0 28.8 0 14.4 14.4 0 1 0-28.8 0Z" fill="#090418" p-id="1829"></path><path d="M158.81 869.14m-14.4 0a14.4 14.4 0 1 0 28.8 0 14.4 14.4 0 1 0-28.8 0Z" fill="#090418" p-id="1830"></path><path d="M838.34 636.86m-14.4 0a14.4 14.4 0 1 0 28.8 0 14.4 14.4 0 1 0-28.8 0Z" fill="#090418" p-id="1831"></path><path d="M879.03 596.17m-14.4 0a14.4 14.4 0 1 0 28.8 0 14.4 14.4 0 1 0-28.8 0Z" fill="#090418" p-id="1832"></path><path d="M787.56 667.47l-206.7 206.7c-5.76 5.76-5.76 14.76 0 20.53 2.88 2.88 6.48 4.32 10.08 4.32 3.6 0 7.2-1.44 10.08-4.32L807.73 688c5.76-5.76 5.76-14.76 0-20.53-5.76-5.76-14.77-5.76-20.17 0zM531.52 472.65c-5.76-5.76-14.76-5.76-20.53 0s-5.76 14.76 0 20.53l113.07 113.07c2.88 2.88 6.48 4.32 10.08 4.32 3.6 0 7.2-1.44 10.08-4.32 5.76-5.76 5.76-14.76 0-20.53l-112.7-113.07zM470.3 452.49c2.88 2.88 6.48 4.32 10.08 4.32s7.2-1.44 10.08-4.32c5.76-5.76 5.76-14.76 0-20.53l-61.22-61.22c-5.76-5.76-14.76-5.76-20.53 0-5.76 5.76-5.76 14.76 0 20.53l61.59 61.22z" fill="#090418" p-id="1833"></path></svg>'
+  }
+]
 @Component
 export default class PainBrush extends Vue {
-  private pxValue = 5;
-  private opacityValue = 100;
+  private toolsArr = toolsArr;
+
+  @Mutation('updateStroke')
+  private updateStroke!: any;
+
+  @Mutation('updateBrush')
+  private updateBrush!: string;
+
+  @Getter('strokeStyle')
+  private strokeStyle!: any;
+
+  @Getter('brush')
+  private brush!: boolean;
+
+  $store: any;
+  get lineWidth () {
+    return this.$store.state.lineWidth
+  }
+
+  set lineWidth (val) {
+    val = parseInt(val)
+    if (isNaN(val)) val = 0
+    this.$store.state.lineWidth = val
+  }
+
+  get noOpacityValue () {
+    return this.$store.state.noOpacityValue
+  }
+
+  set noOpacityValue (val) {
+    val = parseInt(val)
+    if (isNaN(val)) val = 0
+    this.$store.state.noOpacityValue = val
+  }
 }
 </script>
 
@@ -232,20 +282,21 @@ export default class PainBrush extends Vue {
     .title {
       display: flex;
       box-sizing: border-box;
-      margin: 18px 0;
-      font-size: 1.3vw;
-      font-weight: bold;
-      color: rgb(54, 54, 219);
+      margin: 15px 0;
+      font-size: 1.5vw;
+      color: rgb(0, 121, 219);
     }
     .brush-info {
       width: 70%;
       display: flex;
       justify-content: space-evenly;
+      flex-wrap: wrap;
       .brush {
         margin: 5px 0;
         border: 1px solid rgb(59, 59, 161);
         box-sizing: border-box;
         border-radius: 2px;
+        min-width: 15px;
         .icon {
           width: 2.5vw;
           height: 2.5vw;
@@ -253,6 +304,9 @@ export default class PainBrush extends Vue {
         &:hover {
           cursor: pointer;
           border-color: gold;
+        }
+        &.active {
+          background-image: linear-gradient(to right top, #a9bbe4, #03d4f0);
         }
       }
     }
@@ -314,6 +368,9 @@ export default class PainBrush extends Vue {
         cursor: pointer;
         transform: scale(1.05);
         border-color: white !important;
+      }
+      &.active {
+        transform: scale(1.2);
       }
     }
   }

@@ -29,6 +29,7 @@ export default class App extends Vue {
   opacity: 0;
   transition: translateX(200%);
   transform: scale(0);
+  position: absolute;
 }
 
 .v-leave-to {
