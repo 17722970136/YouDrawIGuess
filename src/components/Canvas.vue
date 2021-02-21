@@ -351,6 +351,9 @@ export default class HelloWorld extends Vue {
   @Getter('brush')
   private brush!: string;
 
+  @Getter('WSURL')
+  private WSURL!: string
+
   $store: any;
   get sliderValue () {
     return this.$store.state.canvasSizeSlider
@@ -397,7 +400,7 @@ export default class HelloWorld extends Vue {
   }
 
   initWebsocket () {
-    this.ws = new WebSocket('wss://192.168.124.7:8082')
+    this.ws = new WebSocket(this.WSURL)
     this.ws.onerror = () => {
       this.$message.error('错了哦，ws连接失败')
       this.isWsOpen = false

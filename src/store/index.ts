@@ -14,7 +14,8 @@ export default new Vuex.Store({
     isOpacity: false,
     strokeStyle: 'red',
     brush: '记号笔',
-    Image: null
+    Image: null,
+    WSURL: 'wss://192.168.124.7:8082'
   },
   getters: {
     lineWidth: state => state.lineWidth,
@@ -28,7 +29,8 @@ export default new Vuex.Store({
     isOpacity: state => state.isOpacity,
     strokeStyle: state => state.strokeStyle,
     brush: state => state.brush,
-    Image: state => state.Image
+    Image: state => state.Image,
+    WSURL: state => state.WSURL
 
   },
   mutations: {
