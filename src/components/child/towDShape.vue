@@ -147,7 +147,7 @@ export default class TowDShape extends Vue {
     border-top: 1px solid rgb(228, 228, 228);
     margin: 20px 0;
     padding: 20px 0;
-    transform: scale(0.8);
+    transform: scale(0.66);
     display: flex;
     justify-content: flex-start;
   }

@@ -15,7 +15,7 @@ export default new Vuex.Store({
     strokeStyle: 'red',
     brush: '记号笔',
     Image: null,
-    WSURL: 'wss://192.168.124.7:8082',
+    WSURL: 'ws:39.101.199.226:9001',
     UPLOAD_URL: 'http://127.0.0.1:996'
   },
   getters: {
