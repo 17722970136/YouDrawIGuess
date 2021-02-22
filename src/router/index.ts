@@ -115,6 +115,11 @@ const routes: Array<RouteConfig> = [
     path: '/drawBed',
     name: 'drawBed',
     component: () => import('../components/drawBed.vue')
+  },
+  {
+    path: '/brawBedManage',
+    name: 'brawBedManage', // 图床后台
+    component: () => import('../views/brawBedManage.vue')
   }
 ]
 

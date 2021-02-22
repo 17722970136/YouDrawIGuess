@@ -64,7 +64,7 @@ export default class DrawingBed extends Vue {
   }
 
   manage () {
-    console.log('yyy')
+    this.$router.push({ name: 'brawBedManage' })
   }
 
   initCanvas () {
