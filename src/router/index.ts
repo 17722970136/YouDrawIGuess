@@ -110,6 +110,11 @@ const routes: Array<RouteConfig> = [
       { name: '你好 图床' }
     ],
     component: () => import(/* webpackChunkName: "about" */ '../views/DrawingBed.vue')
+  },
+  {
+    path: '/drawBed',
+    name: 'drawBed',
+    component: () => import('../components/drawBed.vue')
   }
 ]
 

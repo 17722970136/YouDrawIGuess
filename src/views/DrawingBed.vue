@@ -31,6 +31,9 @@
         <div class="el-upload__tip" slot="tip">
           只能上传jpg/png文件，且不超过2M
         </div>
+        <div class="el-upload__tip" slot="tip">
+          <router-link to="/drawBed">更多</router-link>
+        </div>
       </el-upload>
     </div>
   </div>
@@ -119,8 +122,9 @@ export default class DrawingBed extends Vue {
         url: item.response.url
       }
     })
-    this.elUpload.$children[1].$el.lastChild.scrollIntoView(false)
     localStorage.setItem('fileList', JSON.stringify(this.fileList))
+    this.elUpload.$children[2].$el.lastChild.scrollIntoView(false)
+
     this.$message({
       message: '上传成功',
       type: 'success'

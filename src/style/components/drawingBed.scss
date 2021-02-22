@@ -33,6 +33,9 @@
         }
         .el-upload__tip {
             color: white;
+            a {
+                color: rgb(170, 192, 255);
+            }
         }
         .el-upload-list {
             position: fixed !important;
