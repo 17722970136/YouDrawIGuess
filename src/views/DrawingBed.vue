@@ -1,6 +1,6 @@
 <template>
   <div class="drawingBed">
-    <canvas ref="canvas" class="canvas" width="200" height="200">
+    <canvas ref="canvas" class="canvas" width="200" height="200" @dblclick="manage">
       你的浏览器不支持canvas，请升级浏览器或者使用Chrome/fixfor</canvas
     >
     <div class="startAll" ref="startll">
@@ -29,9 +29,11 @@
         <i class="el-icon-upload"></i>
         <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
         <div class="el-upload__tip" slot="tip">
-          只能上传jpg/png文件，且不超过2M
+          只能上传jpg/png文件，且不超过2M<br/>
+          注意：合格图片将公开展示，介意请莫上传
         </div>
         <div class="el-upload__tip" slot="tip">
+          <svg t="1613997337172" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3705" width="48" height="48"><path d="M45.3 559.8v-95.4L0.1 466.9v90.4z" fill="#ffffff" p-id="3706"></path><path d="M180.9 567.4V456.9l-90.4 5v100.4z" fill="#ffffff" p-id="3707"></path><path d="M1024.1 512.1L768.4 240.9v183.3l-542.3 30.2v115.5L768.4 600v183.3z" fill="#ffffff" p-id="3708"></path></svg>
           <router-link to="/drawBed">更多</router-link>
         </div>
       </el-upload>
@@ -59,6 +61,10 @@ export default class DrawingBed extends Vue {
   mounted () {
     this.init()
     this.initCanvas()
+  }
+
+  manage () {
+    console.log('yyy')
   }
 
   initCanvas () {

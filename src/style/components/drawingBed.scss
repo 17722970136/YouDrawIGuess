@@ -33,8 +33,28 @@
         }
         .el-upload__tip {
             color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            @keyframes ainmation {
+                0% {
+                    transform: translateX(0);
+                }
+                50% {
+                    transform: translateX(-30%);
+                }
+                100% {
+                    transform: translateX(0);
+                }
+            }
+            svg {
+                width: 2vw;
+                margin-right: 5px;
+                animation: ainmation ease 0.7s infinite;
+            }
             a {
-                color: rgb(170, 192, 255);
+                color: rgb(153, 252, 214);
+                font-size: 1vw;
             }
         }
         .el-upload-list {

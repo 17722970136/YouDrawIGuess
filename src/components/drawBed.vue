@@ -7,14 +7,15 @@
         :key="index"
         ref="imageBlock"
       >
-        <img v-lazyLoad="item.url" src="../assets/lazyLoad.jpg" :title="item.name" :alt="item.name" />
+        <img v-lazyLoad="item.url" src="../assets/lazyLoad.jpg" title="网友上传" :alt="item.url" />
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Ref } from 'vue-property-decorator'
+import { Vue, Component, Ref, Watch } from 'vue-property-decorator'
+import { Getter } from 'vuex-class'
 
 Vue.directive('lazyLoad', {
   bind: (el: any, binding: any) => {
@@ -32,7 +33,7 @@ Vue.directive('lazyLoad', {
 })
 @Component
 export default class DrawBed extends Vue {
-  private localStorage: any;
+  private localStorage: any = [];
   private starArr = 800;
   private splace = 800;
   private boxArr: any = [];
@@ -41,16 +42,42 @@ export default class DrawBed extends Vue {
   private boxWidth!: number;
   private boxHeight!: number;
   private minHeight!: number;
+  private xhr: any;
 
   @Ref() private drawBedBody!: any;
-  @Ref() private imageBlock!: any;
+  @Ref() private imageBlock: any;
+
+  @Getter('UPLOAD_URL')
+  private UPLOAD_URL!: any;
+
   created () {
-    this.localStorage = localStorage.getItem('fileList') || '[]'
-    this.localStorage = JSON.parse(this.localStorage)
+    this.xhr = new XMLHttpRequest()
+    this.requestInfo()
   }
 
+  requestInfo () {
+    this.xhr.open('GET', this.UPLOAD_URL + '/getDrawBedInfo')
+    this.xhr.send(null)
+    this.xhr.onload = () => {
+      this.localStorage = JSON.parse(this.xhr.responseText).res.reverse()
+    }
+    this.xhr.onerror = () => {
+      console.log('request:err')
+      this.localStorage = localStorage.getItem('fileList') || '[]'
+      this.localStorage = JSON.parse(this.localStorage)
+    }
+  }
+
+  @Watch('localStorage')
+  private hanlderLocalInfo () {
+    this.$nextTick(() => {
+      this.waerFall()
+      this.bindingImage()
+    })
+  }
 
   mounted () {
+    if (this.localStorage.length <= 0) return
     this.waerFall()
     this.bindingImage()
     addEventListener('resize', this.eventWindow)

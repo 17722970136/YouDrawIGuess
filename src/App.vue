@@ -27,11 +27,11 @@ export default class App extends Vue {
 }
 .v-enter {
   opacity: 0;
-  transition: translateX(100%);
+  transition: translateY(0%);
   position: absolute;
 }
 .v-leave-to {
-  transform: translateX(-100%);
+  transform: translateY(100%);
   opacity: 0;
   position: absolute;
 }
