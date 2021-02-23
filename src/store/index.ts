@@ -16,7 +16,7 @@ export default new Vuex.Store({
     brush: '记号笔',
     Image: null,
     WSURL: 'ws:39.101.199.226:9001',
-    UPLOAD_URL: 'http://127.0.0.1:996'
+    UPLOAD_URL: 'http://www.18vang.com:9002'
   },
   getters: {
     lineWidth: state => state.lineWidth,

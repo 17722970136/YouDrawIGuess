@@ -1,5 +1,6 @@
 <template>
   <div class="drawBed" ref="drawBedBody">
+    <progress max="100" value="0" ref="progress"></progress>
     <div class="imageMaxBox">
       <div
         class="imageBlock before"
@@ -46,6 +47,7 @@ export default class DrawBed extends Vue {
 
   @Ref() private drawBedBody!: any;
   @Ref() private imageBlock: any;
+  @Ref() private progress: any;
 
   @Getter('UPLOAD_URL')
   private UPLOAD_URL!: any;
@@ -65,6 +67,14 @@ export default class DrawBed extends Vue {
       console.log('request:err')
       this.localStorage = localStorage.getItem('fileList') || '[]'
       this.localStorage = JSON.parse(this.localStorage)
+    }
+    this.xhr.onprogress = (e: any) => {
+      console.log(e)
+      if (!e.lengthComputable) return
+      this.progress.value = (e.loaded / e.total) * 100
+      if (e.loaded >= e.total) {
+        this.progress.style.display = 'none'
+      }
     }
   }
 
@@ -146,9 +156,17 @@ export default class DrawBed extends Vue {
   padding: 0;
   margin: 0;
   width: 100%;
-  height: calc(100vw - 50);
+  height: calc(100vw - 50px);
   display: flex;
   justify-content: center;
+  progress {
+    width: 100%;
+    display: flex;
+    position: absolute;
+    height: 5px;
+    transition: all linear 1s;
+    color: rgb(40, 80, 211);
+  }
   .imageMaxBox {
     position: relative;
     .imageBlock {
