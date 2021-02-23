@@ -7,8 +7,10 @@
         v-for="(item, index) in localStorage"
         :key="index"
         ref="imageBlock"
+        v-lazyLoad="item.url"
       >
-        <img v-lazyLoad="item.url" src="../assets/lazyLoad.jpg" title="网友上传" :alt="item.url" />
+        <img src="../assets/lazyLoad.jpg" title="网友上传" :alt="item.url" />
+        <progress max="100"></progress>
       </div>
     </div>
   </div>
@@ -23,7 +25,23 @@ Vue.directive('lazyLoad', {
     const Io = new IntersectionObserver((entris) => {
       entris.map((item: any) => {
         if (item.intersectionRatio > 0) {
-          item.target.src = binding.value
+          const XHR = new XMLHttpRequest()
+          XHR.responseType = 'blob'
+          XHR.open('GET', binding.value, true)
+          XHR.send(null)
+          XHR.onprogress = (e: any) => {
+            if (!e.lengthComputable) return
+            item.target.children[1].value = (e.loaded / e.total) * 100
+          }
+          XHR.onload = () => {
+            item.target.children[0].src = window.URL.createObjectURL(
+              XHR.response
+            )
+            item.target.children[0].onload = () => {
+              window.URL.revokeObjectURL(item.target.children[0].src)
+              item.target.children[1].style.display = 'none'
+            }
+          }
           Io.unobserve(item.target)
         }
       })
@@ -69,7 +87,6 @@ export default class DrawBed extends Vue {
       this.localStorage = JSON.parse(this.localStorage)
     }
     this.xhr.onprogress = (e: any) => {
-      console.log(e)
       if (!e.lengthComputable) return
       this.progress.value = (e.loaded / e.total) * 100
       if (e.loaded >= e.total) {
@@ -135,11 +152,12 @@ export default class DrawBed extends Vue {
         // eslint-disable-next-line eqeqeq
         this.minHeight = Math.min(...this.boxArr)
         this.minInex = this.boxArr.findIndex(
-
           // eslint-disable-next-line eqeqeq
           (item: any) => item == this.minHeight
         )
-        item.style.cssText = `position:absolute;left:${this.minInex * this.boxWidth}px;top:${this.minHeight}px;`
+        item.style.cssText = `position:absolute;left:${
+          this.minInex * this.boxWidth
+        }px;top:${this.minHeight}px;`
         this.boxArr[this.minInex] += this.boxHeight
         item.classList.remove('before')
       }
@@ -172,12 +190,21 @@ export default class DrawBed extends Vue {
     .imageBlock {
       float: left;
       padding: 15px;
+      position: relative;
+      progress {
+        width: 250px;
+        position: absolute;
+        left: 50%;
+        bottom: 15px;
+        z-index: 3;
+        transform: translateX(-50%);
+      }
       img {
         width: 250px;
       }
       &.before {
-          width: 250px;
-          height: 250px;
+        width: 250px;
+        height: 250px;
       }
     }
   }
