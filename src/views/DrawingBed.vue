@@ -29,7 +29,7 @@
         <i class="el-icon-upload"></i>
         <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
         <div class="el-upload__tip" slot="tip">
-          只能上传jpg/png文件，且不超过2M<br/>
+          只能上传jpg/png/gif文件，且不超过2M<br/>
           注意：合格图片将公开展示，介意请莫上传
         </div>
         <div class="el-upload__tip" slot="tip">
@@ -51,6 +51,7 @@ export default class DrawingBed extends Vue {
   private ctx: any;
   private gradient: any;
   private fileList: any = [];
+  private uploadMaxNum = 0;
   @Ref() private starts!: any;
   @Ref() private elUpload!: any;
   @Ref() private canvas!: any;
@@ -85,13 +86,17 @@ export default class DrawingBed extends Vue {
     // 格式规范
     const isJPG = file.type === 'image/jpeg' || 'image/png'
     const isLt2M = file.size / 1024 / 1024 < 2
+    const isUpload = this.uploadMaxNum < 10
     if (!isJPG) {
       this.$message.error('上传头像图片只能是 JPG/png 格式!')
     }
     if (!isLt2M) {
       this.$message.error('上传头像图片大小不能超过 2MB!')
     }
-    if (!isJPG || !isLt2M) {
+    if (!isUpload) {
+      this.$message.error('上传图片太累了 请稍后!')
+    }
+    if (!isJPG || !isLt2M || !isUpload) {
       return false
     }
   }
@@ -135,6 +140,8 @@ export default class DrawingBed extends Vue {
       message: '上传成功',
       type: 'success'
     })
+    // 限流
+    this.uploadMaxNum += 1
   }
 
   init () {
