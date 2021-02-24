@@ -11,6 +11,7 @@
       >
         <img src="../assets/lazyLoad.jpg" title="网友上传" :alt="item.url" />
         <progress max="100"></progress>
+        <canvas style="position:absolute; z-index: 99;left:50%;top:50%;transform:translate(-49%,-80%);" width="55" height="55"></canvas>
       </div>
     </div>
   </div>
@@ -32,6 +33,14 @@ Vue.directive('lazyLoad', {
           XHR.onprogress = (e: any) => {
             if (!e.lengthComputable) return
             item.target.children[1].value = (e.loaded / e.total) * 100
+            const cav = item.target.children[2]
+            const ctx = cav.getContext('2d')
+            ctx.beginPath()
+            ctx.strokeStyle = 'DeepSkyBlue'
+            ctx.lineWidth = 3
+            ctx.clearRect(0, 0, 55, 55)
+            ctx.arc(27, 27, 30, 0, (((e.loaded / e.total) * 2) * Math.PI))
+            ctx.stroke()
           }
           XHR.onload = () => {
             item.target.children[0].src = window.URL.createObjectURL(
@@ -40,6 +49,7 @@ Vue.directive('lazyLoad', {
             item.target.children[0].onload = () => {
               window.URL.revokeObjectURL(item.target.children[0].src)
               item.target.children[1].style.display = 'none'
+              item.target.children[2].style.display = 'none'
             }
           }
           Io.unobserve(item.target)
@@ -198,6 +208,18 @@ export default class DrawBed extends Vue {
         bottom: 15px;
         z-index: 3;
         transform: translateX(-50%);
+      }
+      @keyframes animateRotate {
+        0% {
+          transform: rotate(0) translate(-49%,-80%);
+        }
+        100% {
+          transform: rotate(360deg) translate(-49%,-80%);
+        }
+      }
+      canvas {
+        transform-origin: 1% -30%;
+        animation: animateRotate linear 2s infinite;
       }
       img {
         width: 250px;
