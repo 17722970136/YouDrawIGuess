@@ -83,8 +83,12 @@ export default class DrawingBed extends Vue {
   }
 
   beforeUpload (file: any) {
+    if (document.cookie.length > 0) {
+      this.$message.error('上传数量上限了，请明天再试！')
+      return false
+    }
     // 格式规范
-    const isJPG = file.type === 'image/jpeg' || 'image/png'
+    const isJPG = file.type === 'image/jpeg' || file.type === 'image/png' || file.type === 'image/gif'
     const isLt2M = file.size / 1024 / 1024 < 2
     const isUpload = this.uploadMaxNum < 10
     if (!isJPG) {
@@ -142,6 +146,12 @@ export default class DrawingBed extends Vue {
     })
     // 限流
     this.uploadMaxNum += 1
+    if (this.uploadMaxNum >= 10) {
+      const d = new Date()
+      d.setTime(d.getTime() + (86400 * 1000))
+      const expires = 'expires=' + d.toUTCString()
+      document.cookie = 'maxupload=' + (new Date().getTime() / 1000).toString() + ';path=/;expires=' + expires + ';'
+    }
   }
 
   init () {
