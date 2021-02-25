@@ -64,6 +64,18 @@ export default class DrawingBed extends Vue {
     this.initCanvas()
   }
 
+  created () {
+    this.isExistenceCookie()
+  }
+
+  isExistenceCookie () {
+    const isExistence = document.cookie.split('=').findIndex((item: string) => item === 'maxupload')
+    console.log(isExistence)
+    if (isExistence !== -1) {
+      this.uploadMaxNum = 100
+    }
+  }
+
   manage () {
     this.$router.push({ name: 'brawBedManage' })
   }
@@ -83,10 +95,7 @@ export default class DrawingBed extends Vue {
   }
 
   beforeUpload (file: any) {
-    if (document.cookie.length > 0) {
-      this.$message.error('上传数量上限了，请明天再试！')
-      return false
-    }
+    this.isExistenceCookie()
     // 格式规范
     const isJPG = file.type === 'image/jpeg' || file.type === 'image/png' || file.type === 'image/gif'
     const isLt2M = file.size / 1024 / 1024 < 2
@@ -98,7 +107,7 @@ export default class DrawingBed extends Vue {
       this.$message.error('上传头像图片大小不能超过 2MB!')
     }
     if (!isUpload) {
-      this.$message.error('上传图片太累了 请稍后!')
+      this.$message.error('上传数量上限了，请24小时后再试！')
     }
     if (!isJPG || !isLt2M || !isUpload) {
       return false
@@ -146,6 +155,7 @@ export default class DrawingBed extends Vue {
     })
     // 限流
     this.uploadMaxNum += 1
+    console.log(this.uploadMaxNum)
     if (this.uploadMaxNum >= 10) {
       const d = new Date()
       d.setTime(d.getTime() + (86400 * 1000))
